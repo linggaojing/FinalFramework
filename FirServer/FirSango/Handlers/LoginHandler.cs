@@ -1,12 +1,12 @@
-﻿using FirSanguo;
-using log4net;
-using FirServer.Define;
-using LiteNetLib;
-using LiteNetLib.Utils;
+﻿using log4net;
 using FirServer.Handler;
 using FirServer;
 using GameLibs.FirSango.Defines;
 using GameLibs.FirSango.Model;
+using PbUser;
+using FirCommon.Utility;
+using FirCommon.Define;
+using FirCommon.Data;
 
 namespace GameLibs.FirSango.Handlers
 {
@@ -14,53 +14,28 @@ namespace GameLibs.FirSango.Handlers
     {
         private static readonly ILog logger = LogManager.GetLogger(AppServer.repository.Name, typeof(LoginHandler));
 
-        public override void OnMessage(NetPeer peer, byte[] bytes)
+        public override void OnMessage(ClientPeer peer, byte[] bytes)
         {
-            ///解析使用
-            var proto = DeSerialize<AcountLoginAsk>(bytes);
-            logger.Info(proto.username);
-            logger.Info(proto.password);
+            var person = ReqLogin.Parser.ParseFrom(bytes);
 
-            ///封装发送
-            var writer = new NetDataWriter();
-            var reply = new AccountLoginReply();
-            netMgr.SendData<AccountLoginReply>(peer, ProtoType.CSProtoMsg, "AccountLoginReply", reply);
-
-            var username = string.Empty;
-            var password = string.Empty;
-
-            var uid = 0L;
-            var dw = new NetDataWriter();
-            dw.Put(GameProtocal.Login);
-
+            var resData = new ResLogin();
+            resData.Result = PbCommon.ResultCode.Failed;
             var userModel = modelMgr.GetModel(ModelNames.User) as UserModel;
             if (userModel != null)
             {
-                uid = userModel.ExistUser(username, password);
+                var uid = AppUtil.NewGuidId();
+                //var uid = userModel.ExistUser(person.Name, person.Pass);
+                resData.Result = PbCommon.ResultCode.Success;
+                resData.Userinfo = new PbCommon.UserInfo()
+                {
+                    Name = person.Name,
+                    Money = 10000,
+                    Userid = uid.ToString(),
+                };
             }
-            var result = uid == 0 ? (ushort)ResultCode.Failed : (ushort)ResultCode.Success;
-            dw.Put(result);
-            if (uid > 0L) 
-            {
-                dw.Put(uid);
-            }
-            peer.Send(dw, DeliveryMethod.ReliableOrdered);
-            logger.Info(username + " " + password);
-        }
+            netMgr.SendData(peer, ProtoType.LuaProtoMsg, Protocal.ResLogin, resData);
 
-        private void InitUser(long uid, NetPeer peer, UserModel model)
-        {
-            // if (socket == null)
-            // {
-            //     throw new Exception("InitUser null!~");
-            // }
-            // var socketid = appServer.connManager.GetId(socket);
-            // if (socketid > 0)
-            // {
-            //     var user = UserMgr.AddUser(socketid, socket);
-            //     user.uid = uid; 
-            //     user.name = model.GetUserName(uid.ToString());
-            // }
+            logger.Info(person.Name + " " + person.Pass);
         }
     }
 }

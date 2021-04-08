@@ -1,4 +1,5 @@
-﻿using FirServer;
+﻿using FirCommon.Data;
+using FirServer;
 using FirServer.Common;
 using GameLibs.FirSango.Managers;
 
@@ -23,7 +24,7 @@ public class GameBehaviour : BaseBehaviour
         {
             if (_roomMgr == null)
             {
-                _roomMgr = ManagerCenter.AddManager<RoomManager>();
+                _roomMgr = ManagementCenter.AddManager<RoomManager>();
             }
             return _roomMgr;
         }

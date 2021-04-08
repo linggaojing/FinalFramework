@@ -1,14 +1,31 @@
 # FinalFramework
 
-#### 开发背景
-2018年公司同事要做自走棋项目跟我寻求框架，LuaFramework过于示例化并不合适，NewFramework过于轻量，因此在NewFramework基础上，将LuaFramework合并过来，变成了一个新的架构。因此自那时起到今年一直在利用业余时间完善这个新的框架，今天很开心将它开源给大家使用。
+#### 开发目标
+FinalFramework（简称FF）不是为了初学者入门，所以初学者会不适应它的风格，FF的目标是打造独立游戏开发的闭环，从客户端、服务器端+DB、各种独立工具链（剧情编辑器、打表、ProtoBuff等）、WebServer（HTTP埋点，管理后台，通过后台管理Jenkins打包版本）、多端定义共享功能来方便开发者。
 
 ![image](https://github.com/jarjin/FinalFramework/raw/master/screenshot.jpg)      
 
 #### 运行环境（版本太低的需要自力更生了）
-FirClient： Unity 2019.4.8f1 (64-bit) + Visual Studio 2019  
+FirClient： Unity 2019.4.20f1 (64-bit) + Visual Studio 2019  
 FirServer:  .Net Core 3.1 + Visual Studio 2019 + MongoDB 4.29  
-FirToolkit: Visual Studio 2019  
+FirToolkit: Visual Studio 2019 
+
+#### 框架工作流使用介绍：	
+（1）proto添加消息，定义req、res结构，打协议（自动copy到客户端、服务器端pb目录）  
+（2）在FirCommon添加Protocal协议，Build完成工程自动copy到客户端、服务端。  
+（3）在策划Excel目录定义数据表，然后打表（自动copy到客户端+服务器Table目录）  
+（4）在FirServer里添加对于模块Handler（消息），Model（数据库），Manager（管理器）  
+（5）在前端lua添加MsgHandler，Module，Manager，就可以接入View逻辑了。  
+
+#### 2021.02.23 更新日志：
+（1）开源多端共享工程FirCommon，公共定义都放此工程。
+
+#### 2021.02.20 更新日志：
+（1）升级打表工具TableTool V2。
+（2）升级剧情编辑器StoryEditor V2。 
+
+#### 2021.02.11 更新日志：
+（1）梳理了前后端通讯流程，客户端工程设置里面有“NetworkMode”,默认关闭。 
 
 #### 框架特征：
 （0）采用tolua53分支代码(lua5.3.5版本) + pbc3.0 + sproto最新版。    

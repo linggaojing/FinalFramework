@@ -20,15 +20,19 @@ namespace FirServer
 
         protected void Initialize(int port)
         {
-            appServer = this;
             IsRunning = false;
 
             repository = LogManager.CreateRepository("NETCoreRepository");
             XmlConfigurator.Configure(repository, new FileInfo("log4net.config"));
             logger = LogManager.GetLogger(repository.Name, typeof(AppServer));
 
-            ManagerCenter.Initialize();
+            ManagementCenter.Initialize();
 
+            StartServer(port);
+        }
+
+        public void StartServer(int port)
+        {
             mListener = new ServerListener();
             mListener.StartServer(port);
             IsRunning = true;

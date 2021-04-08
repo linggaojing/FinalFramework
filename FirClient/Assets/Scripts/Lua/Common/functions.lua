@@ -1,18 +1,27 @@
-local middleclass = require "3rd/middleclass"
+local middleclass = require "3rd.middleclass"
+
+function _G.formatLog(...)
+	local msgs = {...}
+	local strs = ''
+	for i = 1, #msgs do
+		strs = strs..tostring(msgs[i])..' '
+	end
+	return strs
+end
 
 --输出日志--
-function _G.log(str)
-    UnityEngine.Debug.Log(str)
+function _G.log(...)
+    UnityEngine.Debug.Log(formatLog(...))
 end
 
 --错误日志--
-function _G.logError(str) 
-	UnityEngine.Debug.LogError(str)
+function _G.logError(...) 
+	UnityEngine.Debug.LogError(formatLog(...))
 end
 
 --警告日志--
-function _G.logWarn(str) 
-	UnityEngine.Debug.LogWarning(str)
+function _G.logWarn(...) 
+	UnityEngine.Debug.LogWarning(formatLog(...))
 end
 
 --查找对象--
@@ -169,4 +178,40 @@ end
 
 function _G.tointeger(number)
     return math.floor(tonumber(number) or error("Could not cast '" .. tostring(number) .."' to number.'"))
+end
+
+function table.copy(src)
+    if src == nil then
+        print("!!! try copy nil")
+        return nil
+    end
+    local dst = {}
+	for k,v in pairs(src) do
+        dst[k] = v
+    end
+    return dst
+end
+
+function table.deepcopy(orig)
+	if orig == nil then return nil end
+	local function deep_copy(orig)
+		local copy
+		if type(orig) == "table" then
+		  	copy = {}
+		  	for orig_key, orig_value in next, orig, nil do
+				copy[deep_copy(orig_key)] = deep_copy(orig_value)
+		  	end
+		  	setmetatable(copy, deep_copy(getmetatable(orig)))
+		else
+		  copy = orig
+		end
+		return copy
+	end
+	return deep_copy(orig)
+end
+
+function _G.handler(method, obj)
+	return function(...)
+		return method(obj, ...)
+	end
 end

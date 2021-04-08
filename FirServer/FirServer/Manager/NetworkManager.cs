@@ -1,44 +1,40 @@
-﻿using FirServer.Define;
-using FirServer.Interface;
+﻿using FirCommon.Data;
+using FirCommon.Define;
+using FirCommon.Utility;
+using Google.Protobuf;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using log4net;
-using ProtoBuf;
-using System.IO;
 
 namespace FirServer.Manager
 {
-    public class NetworkManager : BaseBehaviour, IManager
+    public class NetworkManager : BaseManager
     {
         private static readonly ILog logger = LogManager.GetLogger(AppServer.repository.Name, typeof(NetworkManager));
 
-        public void Initialize()
+        public override void Initialize()
         {
-            netMgr = this;
         }
 
         internal void OnConnected(NetPeer peer)
         {
-            logger.Info(peer.EndPoint + " OnConnected!!");
-        }
-
-        public void SendData<T>(NetPeer peer, ProtoType protoType, string protoName, T t)
-        {
-            var bytes = Serialize<T>(t);
-            if (bytes != null)
+            var handler = handlerMgr.GetHandler(Protocal.Connected);
+            if (handler != null)
             {
-                SendDataInternal(peer, protoType, protoName, bytes);
+                var clientPeer = clientPeerMgr.AddClientPeer(peer);
+                handler.OnMessage(clientPeer, null);
             }
         }
 
-        private void SendDataInternal(NetPeer peer, ProtoType protoType, string protoName, byte[] buffer)
+        public void SendData(ClientPeer clientPeer, ProtoType protoType, string protoName, IMessage msg)
         {
+            var buffer = msg.Serialize();
             var writer = new NetDataWriter();
-            writer.Put((ushort)protoType);
+            writer.Put((byte)protoType);
             writer.Put(protoName);
             writer.Put(buffer.Length);
             writer.Put(buffer);
-            peer.Send(writer, DeliveryMethod.ReliableOrdered);
+            clientPeer.peer.Send(writer, DeliveryMethod.ReliableOrdered);
         }
 
         public void OnRecvData(NetPeer peer, NetPacketReader reader)
@@ -51,22 +47,11 @@ namespace FirServer.Manager
             var handler = handlerMgr.GetHandler(Protocal.Disconnect);
             if (handler != null)
             {
-                handler.OnMessage(peer, null);
+                var clientPeer = clientPeerMgr.GetClientPeer(peer);
+                handler.OnMessage(clientPeer, null);
+                clientPeerMgr.RemoveClientPeer(peer);
             }
             logger.Error("ConnectId:>" + peer.Id + " Disconnected!");
-        }
-
-        public byte[] Serialize<T>(T t)
-        {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                Serializer.Serialize<T>(ms, t);
-                return ms.ToArray();
-            }
-        }
-
-        public void OnDispose()
-        {
         }
     }
 }

@@ -5,6 +5,7 @@ using FirClient.Manager;
 using FirClient.Component;
 using FirClient.Utility;
 using LuaInterface;
+using FirCommon.Data;
 
 public abstract class BaseBehaviour
 {
@@ -100,6 +101,7 @@ public abstract class BaseBehaviour
             AppConst.DebugMode = settings.debugMode;
             AppConst.GameFrameRate = settings.GameFrameRate;
             AppConst.UpdateMode = settings.updateMode;
+            AppConst.NetworkMode = settings.networkMode;
             AppConst.LuaByteMode = settings.luaByteMode;
             AppConst.ShowFps = settings.showFps;
         }

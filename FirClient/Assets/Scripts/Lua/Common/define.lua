@@ -4,12 +4,15 @@ _G.Main = {}
 _G.LuaUtil = {}
 _G.MgrCenter = nil
 
-_G.Color32 = require "Common/Color32"
-_G.UiNames = require "Common/LuaUiNames"
+_G.Color32 	= require "Common/Color32"
+_G.UiNames 	= require "Common/LuaUiNames"
+_G.Event 	= 	require "3rd/event/events"
+_G.EventType 	= 	require "Common/EventType"
 
 _G.CtrlNames = {
 	GMCmd = 'GMCmdCtrl',
 	Preload = 'PreloadCtrl',
+	RedDot = 'RedDotCtrl',
 }
 
 _G.ModuleNames = {
@@ -17,6 +20,7 @@ _G.ModuleNames = {
 	Dungeon = "DungeonModule",
 	Hero = "HeroModule",
 	MainRole = "MainRoleModule",
+	User = "UserModule",
 }
 
 _G.ManagerNames = {
@@ -44,7 +48,7 @@ _G.ManagerNames = {
 }
 
 _G.HandlerNames = {
-	Test = "TestMsgHandler"
+	User = "UserMsgHandler"
 }
 
 _G.Path = System.IO.Path
@@ -103,4 +107,9 @@ _G.ItemBoxState = {
 	Normal = 0,
 	Highlighted = 1,
 	Disabled = 2
+}
+
+_G.MsgType = {
+	Text = 0,
+	Image = 1,
 }

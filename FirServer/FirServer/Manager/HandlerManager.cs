@@ -1,28 +1,19 @@
 ﻿using System.Collections.Generic;
 using log4net;
-using FirServer.Handler;
 using FirServer.Interface;
-using FirServer.Define;
 using LiteNetLib;
 using System;
+using FirCommon.Define;
 
 namespace FirServer.Manager
 {
-    public class HandlerManager : BaseBehaviour, IManager
+    public class HandlerManager : BaseManager
     {
         static readonly ILog logger = LogManager.GetLogger(AppServer.repository.Name, typeof(HandlerManager));
-        Dictionary<string, IHandler> mHandlers = new Dictionary<string, IHandler>()
-        {
-            { Protocal.Default, new DefaultHandler() },
-            { Protocal.Disconnect, new DisconnectHandler() },
-        };
+        Dictionary<string, IHandler> mHandlers = new Dictionary<string, IHandler>();
 
-        /// <summary>
-        /// 初始化消息处理器映射
-        /// </summary>
-        public void Initialize()
+        public override void Initialize()
         {
-            handlerMgr = this;
         }
 
         /// <summary>
@@ -68,10 +59,11 @@ namespace FirServer.Manager
 
             if (!mHandlers.ContainsKey(protoName))
             {
+                logger.Error("Proto ["+ protoName + "] not found!~~Reset to default!!!~");
                 protoName = Protocal.Default;
             }
-            byte[] bytes = null;
             var count = reader.GetInt();
+            byte[] bytes = new byte[count];
             reader.GetBytes(bytes, count);
 
             IHandler handler = null;
@@ -81,7 +73,13 @@ namespace FirServer.Manager
                 {
                     if (handler != null)
                     {
-                        handler.OnMessage(peer, bytes);
+                        var clientPeer = clientPeerMgr.GetClientPeer(peer);
+                        if (clientPeer == null)
+                        {
+                            logger.Error("clientPeer was null!!!!");
+                            return;
+                        }
+                        handler.OnMessage(clientPeer, bytes);
                     }
                 }
                 catch (Exception ex)
@@ -89,10 +87,6 @@ namespace FirServer.Manager
                     logger.Error(ex.Message);
                 }
             }
-        }
-
-        public void OnDispose()
-        {
         }
     }
 }

@@ -14,6 +14,8 @@ function Main.Initialize(initOK)
 	Main.InitHudRes()
 	Main.InitPreloadUI()
 	Main.InitPreloadAsset(initOK)
+	Main.InitRedDotCtrl()
+	
 end
 
 --初始化预加载UI--
@@ -100,6 +102,14 @@ function Main.InitPreloadAsset(initOK)
 	end
 end
 
+-- 红点ctrl
+function Main.InitRedDotCtrl()
+	local redDotCtrl = ctrlMgr:GetCtrl(CtrlNames.RedDot)
+	if redDotCtrl ~= nil then
+		redDotCtrl:Initialize()
+	end
+end
+
 --进入场景--
 function Main.EnterScene(mapid, execOK)
 	local adapter = adapterMgr:GetAdapter(LevelType.Main)
@@ -171,7 +181,7 @@ function Main.CallTableFunc(typeName, uniqueid, funcName)
 end
 
 function Main.OnReceived(name, bytes)
-	local netMgr = ManagerCenter:GetManager(ManagerNames.Network)
+	local netMgr = MgrCenter:GetManager(ManagerNames.Network)
 	if netMgr ~= nil then
 		netMgr:OnReceived(name, bytes)
 	end
